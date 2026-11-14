@@ -4,13 +4,11 @@
 
 # -----------------------------------------------------
 # 1. IMPORTACIÓN DE LIBRERÍAS
-# Responsable:(Camila)
 from abc import ABC, abstractmethod
 import logging
 from datetime import datetime
 # -----------------------------------------------------
 # 2. EXCEPCIONES PERSONALIZADAS
-# Responsable: (Camila)
 
 # Error general del sistema: todos los demás errores heredan de este
 class SistemaError(Exception):
@@ -31,7 +29,7 @@ class ReservaInvalidaError(SistemaError):
 
 # -----------------------------------------------------
 # 3. CLASE ABSTRACTA ENTIDAD
-# Responsable: (Camila)
+
 
 # Clase abstracta: sirve de molde para otras clases, no se puede crear un objeto directamente de ella
 class Entidad(ABC):
@@ -51,7 +49,6 @@ class Entidad(ABC):
 
 # -----------------------------------------------------
 # 4. CLASE CLIENTE
-# Responsable: (Camila)
 
 # Cliente hereda de Entidad
 class Cliente(Entidad):
@@ -118,61 +115,67 @@ class Cliente(Entidad):
 
 # -----------------------------------------------------
 # 5. CLASE ABSTRACTA SERVICIO
-# Responsable: (Camila)
 
-# Clase adstracta: molde para los servicios
+
+# Clase abstracta: molde para los servicios (salas, equipos, asesorías)
 class Servicio(ABC):
-    #contructor: recibe el nombre del servicio y tarifa por hora
+    # Constructor: recibe el nombre del servicio y su tarifa por hora
     def __init__(self, nombre, tarifa_hora):
-        #pasa por la validacion
+        # Pasa por la validación 
         self.nombre = nombre
+        # Pasa por la validación 
         self.tarifa_hora = tarifa_hora
-        #nombre
-        @property
-        def nombre(self):
-            #devuelve el nombre guardado
-            return self._nombre
-        @nombre.setter
-        def nombre(self, valor):
-            #rechaza si no hay texto o esta vacio
-            if not isinstance(valor, str) or not valor.strip():
-                raise ValidacionError("El nombre del servicio no puede estar vacio ")
-            # guarda el nombre sin espacios 
-            self._nombre = valor.strip()
 
-            #tarifa por hora
-            @property
-            def tarifa_hora(self):
-                #devuelve la tarifa guardada
-                return self._tarifa_hora
-            @tarifa_hora.setter
-            def tarifa_hora(self,valor):
-                #debe ser un numero mayor que cero 
-                if not isinstance(valor, (int, float)) or valor <= 0:
-                    raise ValidacionError("la tarifa por hora debe ser un numero mayor que cero")
-                #guarda la tarifa
-                self._tarifa_hora = valor
+    # ----- NOMBRE -----
+    @property
+    def nombre(self):
+        # Devuelve el nombre guardado
+        return self._nombre
 
-                #metodo adstracto: cada servicio calcula su costo base a su manera 
-                @abstractmethod
-                def calcular_costo(self, horas):
-                    pass
-                #cada servicio se describe a su manera
-                @abstractmethod
-                def describir(self):
-                    pass
-                # cada servicio valida sus propios parametros
-                    @abstractmethod
-                    def validar_parametros(self, horas):
-                         pass
+    @nombre.setter
+    def nombre(self, valor):
+        # Rechaza si no es texto o está vacío
+        if not isinstance(valor, str) or not valor.strip():
+            raise ValidacionError("El nombre del servicio no puede estar vacío")
+        # Guarda el nombre sin espacios sobrantes
+        self._nombre = valor.strip()
+
+    # ----- TARIFA POR HORA -----
+    @property
+    def tarifa_hora(self):
+        # Devuelve la tarifa guardada
+        return self._tarifa_hora
+
+    @tarifa_hora.setter
+    def tarifa_hora(self, valor):
+        # Debe ser un número mayor que cero
+        if not isinstance(valor, (int, float)) or valor <= 0:
+            raise ValidacionError("La tarifa por hora debe ser un número mayor que cero")
+        # Guarda la tarifa
+        self._tarifa_hora = valor
+
+    # Método abstracto: cada servicio calcula su costo base a su manera
+    @abstractmethod
+    def calcular_costo(self, horas):
+        pass
+
+    # Método abstracto: cada servicio se describe a su manera
+    @abstractmethod
+    def describir(self):
+        pass
+
+    # Método abstracto: cada servicio valida sus propios parámetros
+    @abstractmethod
+    def validar_parametros(self, horas):
+        pass
 
     # Método sobrecargado: el mismo cálculo con impuesto y descuento opcionales
     def calcular_costo_total(self, horas, impuesto=0, descuento=0):
-        # Costo base según el servicio 
+        # Costo base según el servicio (lo calcula la clase hija)
         costo = self.calcular_costo(horas)
-        # Aplica el descuento 
+        # Aplica el descuento (por ejemplo 0.10 es un 10 %)
         costo = costo - costo * descuento
-        # Aplica el impuesto 
+        # Aplica el impuesto (por ejemplo 0.19 es un 19 %)
         costo = costo + costo * impuesto
         # Devuelve el costo final
         return costo
